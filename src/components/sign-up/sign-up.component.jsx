@@ -1,36 +1,56 @@
 import { useState } from "react";
+import { createAuthUserWithEmailAndPassword, createUserDocumentFromAuth } from "../../utils/firebase/firebase.utils";
+import FormInput from "../form-input/form-input.component";
+
+const defaultFormFields = {
+    displayName: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
+}
 
 const SignUp = () => {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [displayName, setDIsplayName] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState("");
-    const [flash, setFlash] = useState("");
+    const [formFields, setFormFields] = useState(defaultFormFields);
+    const { displayName, email, password, confirmPassword } = formFields;
+
+    console.log(formFields);
+
+    const handleChange = (event) => {
+        const { name, value } = event.target;
+        setFormFields({ ...formFields, [name]: value })
+    }
+
+    const handleOnSubmit = async (event) => {
+        event.preventDefault();
+
+        if (confirmPassword !== password) {
+            alert("Passwords do not match")
+            return;
+        }
+
+        try {
+            const { user } = await createAuthUserWithEmailAndPassword(email, password);
+            await createUserDocumentFromAuth(user, { displayName })
+        } catch (exception) {
+            if (exception.code === 'auth/email-already-in-use') {
+                alert("Email in use")
+            } else {
+                console.error("an error occured", exception);
+            }
+        }
+    }
 
     return (
         <div>
-            <div>{flash}</div>
-            <form onSubmit={(e) => {
-                if (confirmPassword !== password) {
-                    setFlash("Error: Passwords don't match");
-                    e.preventDefault();
-                }
-            }}>
-                <label>Display Name</label>
-                <input type="text" required />
+            <form onSubmit={handleOnSubmit}>
 
-                <label>Email</label>
-                <input type="email" onChange={(e) => {
-                    setEmail(e.target.value);
-                }} placeholder="Email" required />
+                <FormInput label="Display Name" type="text" required onChange={handleChange} name="displayName" value={displayName} />
 
-                <label>Password</label>
-                <input onChange={(e) => {
-                    setPassword(e.target.value);
-                }} placeholder="Password" required />
+                <FormInput label="Email" type="email" onChange={handleChange} required name="email" value={email} />
 
-                <label>Confirm Password</label>
-                <input placeholder="Confirm Password" required />
+                <FormInput label="Password" onChange={handleChange} required name="password" value={password} />
+
+                <FormInput label="Confirm Password" required onChange={handleChange} name="confirmPassword" value={confirmPassword} />
                 <div>
                     <button type="submit">Submit</button>
                 </div>
