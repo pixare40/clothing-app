@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useContext } from "react"
 import Button from "../button/button.component";
 import FormInput from "../form-input/form-input.component"
 import {
@@ -8,6 +8,7 @@ import {
 } from "../../utils/firebase/firebase.utils";
 
 import './login.styles.scss';
+import { UserContext } from "../../contexts/user.context";
 
 const defaultLoginInput = {
     password: '',
@@ -31,12 +32,14 @@ const Login = () => {
         const userDocRef = await createUserDocumentFromAuth(user);
     };
 
+    const { setCurrentUser } = useContext(UserContext);
+
     const handleOnSubmit = async (event) => {
         event.preventDefault();
 
         try {
-            const response = await signInAuthUserEmailAndPassword(email, password);
-            console.log(response);
+            const { user } = await signInAuthUserEmailAndPassword(email, password);
+            setCurrentUser(user);
         } catch (error) {
             switch (error.code) {
                 case 'auth/wrong-password':
@@ -72,6 +75,7 @@ const Login = () => {
                     onChange={handleChange}
                     required
                     name="password"
+                    type='password'
                     value={password}
                 />
                 <div className="login-button-container">
