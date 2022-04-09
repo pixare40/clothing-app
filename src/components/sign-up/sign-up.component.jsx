@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { createAuthUserWithEmailAndPassword, createUserDocumentFromAuth } from "../../utils/firebase/firebase.utils";
+import Button from "../button/button.component";
 import FormInput from "../form-input/form-input.component";
+
+import './sign-up.styles.scss'
 
 const defaultFormFields = {
     displayName: '',
@@ -41,18 +44,45 @@ const SignUp = () => {
     }
 
     return (
-        <div>
+        <div className="sign-up-container">
+            <h2>Don't have an account?</h2>
             <form onSubmit={handleOnSubmit}>
 
-                <FormInput label="Display Name" type="text" required onChange={handleChange} name="displayName" value={displayName} />
+                <FormInput
+                    label="Display Name"
+                    type="text"
+                    required
+                    onChange={handleChange}
+                    name="displayName"
+                    value={displayName}
+                />
 
-                <FormInput label="Email" type="email" onChange={handleChange} required name="email" value={email} />
+                <FormInput
+                    label="Email"
+                    type="email"
+                    onChange={handleChange}
+                    required
+                    name="email"
+                    value={email}
+                />
 
-                <FormInput label="Password" onChange={handleChange} required name="password" value={password} />
+                <FormInput
+                    label="Password"
+                    onChange={handleChange}
+                    required
+                    name="password"
+                    value={password}
+                />
 
-                <FormInput label="Confirm Password" required onChange={handleChange} name="confirmPassword" value={confirmPassword} />
+                <FormInput
+                    label="Confirm Password"
+                    required
+                    onChange={handleChange}
+                    name="confirmPassword"
+                    value={confirmPassword}
+                />
                 <div>
-                    <button type="submit">Submit</button>
+                    <Button type="submit">Submit</Button>
                 </div>
             </form>
         </div>
