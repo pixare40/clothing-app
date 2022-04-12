@@ -1,27 +1,54 @@
-import { createContext, useEffect, useState } from "react";
-import { onAuthStateChangedListener, createUserDocumentFromAuth } from "../utils/firebase/firebase.utils";
+import { createContext, useEffect, useReducer, useState } from "react";
+import {
+  onAuthStateChangedListener,
+  createUserDocumentFromAuth,
+} from "../utils/firebase/firebase.utils";
+import { createAction } from "../utils/reducer/reducer.utils";
 
 //actual value toa ccess
 export const UserContext = createContext({
-    currentUser: null,
-    setCurrentUser: () => null
+  currentUser: null,
+  setCurrentUser: () => null,
 });
 
+export const USER_ACTION_TYPES = {
+  SET_CURRENT_USER: "SET_CURRENT_USER",
+};
+
+const userReducer = (state, action) => {
+  const { type, payload } = action;
+
+  switch (type) {
+    case "SET_CURRENT_USER":
+      return { ...state, currentUser: payload };
+    default:
+      throw new Error(`Unhandled type`);
+  }
+};
+
+const INITIAL_STATE = {
+  currentUser: null,
+};
+
 export const UserProvider = ({ children }) => {
-    const [currentUser, setCurrentUser] = useState(null);
+  const [{ currentUser }, dispatch] = useReducer(userReducer, INITIAL_STATE);
+  // const [currentUser, setCurrentUser] = useState(null);
 
-    useEffect(() => {
-        const unsubscribe = onAuthStateChangedListener((user) => {
-            console.log(user);
-            if (user) {
-                createUserDocumentFromAuth(user);
-            }
-            setCurrentUser(user);
-        })
+  const setCurrentUser = (user) => {
+    dispatch(createAction(USER_ACTION_TYPES.SET_CURRENT_USER, user));
+  };
 
-        return unsubscribe
-    }, [])
+  useEffect(() => {
+    const unsubscribe = onAuthStateChangedListener((user) => {
+      if (user) {
+        createUserDocumentFromAuth(user);
+      }
+      setCurrentUser(user);
+    });
 
-    const value = { currentUser, setCurrentUser }
-    return <UserContext.Provider value={value}>{children}</UserContext.Provider>
-}
+    return unsubscribe;
+  }, []);
+
+  const value = { currentUser, setCurrentUser };
+  return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
+};
