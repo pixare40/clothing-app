@@ -5,8 +5,8 @@ import reportWebVitals from "./reportWebVitals";
 import { Provider } from 'react-redux';
 import { BrowserRouter } from "react-router-dom";
 import { createRoot } from "react-dom/client";
-import { CartProvider } from "./contexts/cart.context";
-import { store } from "./store/store";
+import { store, persistor } from "./store/store";
+import { PersistGate } from 'redux-persist/integration/react';
 
 const container = document.getElementById("root");
 const root = createRoot(container);
@@ -14,11 +14,11 @@ const root = createRoot(container);
 root.render(
   <React.StrictMode>
     <Provider store={store}>
-      <BrowserRouter>
-        <CartProvider>
+      <PersistGate persistor={persistor}>
+        <BrowserRouter>
           <App />
-        </CartProvider>
-      </BrowserRouter>
+        </BrowserRouter>
+      </PersistGate>
     </Provider>
   </React.StrictMode>
 );
